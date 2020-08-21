@@ -5,7 +5,7 @@
 // @author        a-b
 // @copyright     2020, a-b (https://github.com/a-b)
 // @license       MIT
-// @version       0.2
+// @version       0.3
 // @match         https://*.auth.securid.com/saml-fe/sso*
 // @require       http://code.jquery.com/jquery-latest.js
 // @grant none
@@ -18,33 +18,29 @@
 // run `localStorage.removeItem('securidUsername')` in your browser console to reset username
 
 (function () {
-    'use strict';
+  'use strict';
 
-    $(document).ready(function () {
+  $(document).ready(function () {
 
-        var userName = localStorage.getItem('securidUsername') || prompt("Please enter Securid username:", "your username");
+    const waitUntilElementExists = (selector, callback) => {
+      const el = document.querySelector(selector);
 
-        if (userName === null || userName === "") {
-            alert("Securid Login Helper configureation canceled; reload page to retry");
-        }
-        else {
-            localStorage.setItem("securidUsername", userName)
-        }
+      if (el) {
+        return callback(el);
+      }
 
-        const waitUntilElementExists = (selector, callback) => {
-            const el = document.querySelector(selector);
+      setTimeout(() => waitUntilElementExists(selector, callback), 500);
+    }
 
-            if (el) {
-                return callback(el);
-            }
+    waitUntilElementExists("input#username", (el) => {
+      document.querySelector("input#username").value = localStorage.getItem('securidUsername');
+      document.querySelector("input#input_otp_secret").focus();
 
-            setTimeout(() => waitUntilElementExists(selector, callback), 500);
-        }
-
-        waitUntilElementExists("#username", (el) => {
-            document.querySelector("#username").value = userName;
-            document.querySelector("#input_otp_secret").focus();
-        });
+      document.getElementById("btn_verify_securid").onclick = function(){
+          localStorage.setItem("securidUsername", document.querySelector("input#username").value);
+          console.log("localStorage['securidUsername'] = ", document.querySelector("input#username").value);
+      }
     });
+  });
 
 })();
